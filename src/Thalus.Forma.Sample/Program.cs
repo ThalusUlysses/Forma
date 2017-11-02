@@ -22,7 +22,7 @@ namespace Thalus.Forma.Sample
                 .Default(10.0)
                 .Value(25.0)
                 .Unit("simL", "mL")
-                .Append()
+                .AddToParams()
                 .Int("MyIntId")
                 .Default(1)
                 .Value(1)
@@ -31,11 +31,11 @@ namespace Thalus.Forma.Sample
                 .Enum(2, "B")
                 .Enum(3, "C")
                 .Enum(4, "D")
-                .Append().Char("charId")
+                .AddToParams().Char("charId")
                 .Value('C')
                 .Regex("[A|B|C|D]")
                 .Unit("siAu", "AU")
-                .Append()
+                .AddToParams()
                 .Build();
 
             // Format it as CSV and parse it back
@@ -46,8 +46,10 @@ namespace Thalus.Forma.Sample
             Console.WriteLine(groupCsv);
 
             Parser.Csv.GroupParser csvParser = new Parser.Csv.GroupParser();
+            string text = "MYCOMMAND 1,23.5,\"The Command\",'c'";
+            //string text = "FRAC 1,0.32,\"My fraction\",\'c\'";
 
-            var csvGroupParam = csvParser.Parse(groupCsv);
+            var csvGroupParam = csvParser.Parse(text);
             
             // Format it as json and parse it back
             Formatter.Json.GroupFormatter jsonFrmt = new Formatter.Json.GroupFormatter();

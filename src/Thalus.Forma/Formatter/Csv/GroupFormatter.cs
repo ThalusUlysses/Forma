@@ -30,9 +30,12 @@ namespace Thalus.Forma.Formatter.Csv
         public void Format(GroupParam group, StringBuilder b)
         {
             b.Append(group.Id);
-            b.Append(" ");
 
-            _formatter.Format(group.Parts, b);
+            if (group.Parts != null)
+            {
+                b.Append(" ");
+                _formatter.Format(group.Parts, b);
+            }
         }
 
         /// <inheritdoc>

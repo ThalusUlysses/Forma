@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Thalus.Forma.Fluent
 {
@@ -21,16 +22,8 @@ namespace Thalus.Forma.Fluent
 
         private bool _hasSettings;
 
-        private GroupFluent _fluent;
-        /// <summary>
-        /// Appends a <see cref="DoubleParam"/> to a <see cref="GroupParam"/> using <see cref="GroupFluent"/>
-        /// </summary>
-        /// <returns></returns>
-        public GroupFluent Append()
-        {
-            _fluent.Add(Build());
-            return _fluent;
-        }
+        private List<object> _parentFluents;
+       
         /// <summary>
         /// Creates an instance of <see cref="DoubleFluent"/> initialized with defaults
         /// </summary>
@@ -38,12 +31,18 @@ namespace Thalus.Forma.Fluent
         {
 
         }
+
+        internal TType Fluent<TType>()
+        {
+            return (TType)_parentFluents.First(i => i.GetType() == typeof(TType));
+        }
+
         /// <summary>
         /// Creates an instance of <see cref="DoubleFluent"/> initialized with passed parameters
         /// </summary>
-        public DoubleFluent(GroupFluent fluent)
+        public DoubleFluent(params object[] parentFluents)
         {
-            _fluent = fluent;
+            _parentFluents = parentFluents?.ToList();
             PresetValues();
         }
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Thalus.Forma.Fluent
 {
@@ -8,7 +9,7 @@ namespace Thalus.Forma.Fluent
     /// </summary>
     public class GroupFluent
     {
-        private List<Part> _parts;
+        private Lazy<List<Part>> _parts;
         private string _id;
         private string _dislayValue;
 
@@ -17,15 +18,25 @@ namespace Thalus.Forma.Fluent
         private Lazy<StringFluent> _string;
         private Lazy<IntFluent> _int;
 
+        private List<object> _parentFluents;
+
+        public TType Fluent<TType>()
+        {
+            return (TType)_parentFluents.First(i => i.GetType() == typeof(TType));
+        }
+
         /// <summary>
         /// Creates an instance of <see cref="GroupFluent"/> initialized with defaults
         /// </summary>
-        public GroupFluent()
+        public GroupFluent(params object[] parentFluents)
         {
+            _parentFluents = parentFluents?.ToList();
             _double = new Lazy<DoubleFluent>(() => new DoubleFluent(this));
             _char = new Lazy<CharFluent>(() => new CharFluent(this));
             _string = new Lazy<StringFluent>(() => new StringFluent(this));
             _int = new Lazy<IntFluent>(() => new IntFluent(this));
+
+            _parts = new Lazy<List<Part>>(() => new List<Part>());
         }
 
         /// <summary>
@@ -33,8 +44,12 @@ namespace Thalus.Forma.Fluent
         /// </summary>
         /// <param name="id">Pass a valid id for parameter</param>
         /// <returns></returns>
-        public DoubleFluent Double(string id)
+        public DoubleFluent Double(string id=null)
         {
+            if (id == null)
+            {
+                id = $"{_id}-{_parts.Value.Count + 1}";
+            }
             _double.Value.Id(id);
             return _double.Value;
         }
@@ -44,8 +59,14 @@ namespace Thalus.Forma.Fluent
         /// </summary>
         /// <param name="id">Pass a valid id for parameter</param>
         /// <returns></returns>
-        public StringFluent String(string id)
+        public StringFluent String(string id=null)
         {
+            if (id == null)
+            {
+                id = $"{_id}-{_parts.Value.Count + 1}";
+
+            }
+
             _string.Value.Id(id);
             return _string.Value;
         }
@@ -55,8 +76,13 @@ namespace Thalus.Forma.Fluent
         /// </summary>
         /// <param name="id">Pass a valid id for parameter</param>
         /// <returns></returns>
-        public IntFluent Int(string id)
+        public IntFluent Int(string id=null)
         {
+            if (id == null)
+            {
+                id = $"{_id}-{_parts.Value.Count + 1}";
+
+            }
             _int.Value.Id(id);
             return _int.Value;
         }
@@ -66,8 +92,13 @@ namespace Thalus.Forma.Fluent
         /// </summary>
         /// <param name="id">Pass a valid id for parameter</param>
         /// <returns></returns>
-        public CharFluent Char(string id)
+        public CharFluent Char(string id=null)
         {
+            if (id == null)
+            {
+                id = $"{_id}-{_parts.Value.Count + 1}";
+
+            }
             _char.Value.Id(id);
             return _char.Value;
         }
@@ -79,12 +110,7 @@ namespace Thalus.Forma.Fluent
         /// <returns></returns>
         public GroupFluent Add(Part p)
         {
-            if (_parts == null)
-            {
-                _parts = new List<Part>();
-            }
-
-            _parts.Add(p);
+            _parts.Value.Add(p);
 
             return this;
         }
@@ -97,12 +123,7 @@ namespace Thalus.Forma.Fluent
         /// <returns></returns>
         public GroupFluent AddRange(Part[] p)
         {
-            if (_parts == null)
-            {
-                _parts = new List<Part>();
-            }
-
-            _parts.AddRange(p);
+            _parts.Value.AddRange(p);
 
             return this;
         }
@@ -132,7 +153,7 @@ namespace Thalus.Forma.Fluent
         private void PresetValues()
         {
             _id = null;
-            _parts = null;
+            _parts = new Lazy<List<Part>>(() => new List<Part>());
             _dislayValue = null;
         }
 
@@ -147,7 +168,7 @@ namespace Thalus.Forma.Fluent
             {
                 Id = _id,
                 Type = "group",
-                Parts = _parts?.ToArray()
+                Parts = _parts?.Value.ToArray()
             };
 
 
@@ -163,6 +184,54 @@ namespace Thalus.Forma.Fluent
             }
             PresetValues();
             return grp;
+        }
+        
+    }
+
+    public static class Extensions
+    {
+        public static  GroupFluent AddToParams(this DoubleFluent p)
+        {
+            var item = p.Build();
+
+            var fluent = p.Fluent<GroupFluent>();
+
+            fluent.Add(item);
+
+            return fluent;
+        }
+
+        public static GroupFluent AddToParams(this IntFluent p)
+        {
+            var item = p.Build();
+
+            var fluent = p.Fluent<GroupFluent>();
+
+            fluent.Add(item);
+
+            return fluent;
+        }
+
+        public static GroupFluent AddToParams(this CharFluent p)
+        {
+            var item = p.Build();
+
+            var fluent = p.Fluent<GroupFluent>();
+
+            fluent.Add(item);
+
+            return fluent;
+        }
+
+        public static GroupFluent AddToParams(this StringFluent p)
+        {
+            var item = p.Build();
+
+            var fluent = p.Fluent<GroupFluent>();
+
+            fluent.Add(item);
+
+            return fluent;
         }
     }
 }

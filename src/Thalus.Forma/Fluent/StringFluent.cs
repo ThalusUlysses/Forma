@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Thalus.Forma.Fluent
 {
@@ -19,15 +20,12 @@ namespace Thalus.Forma.Fluent
         private bool _hasUnit;
         private List<StringEnumMeta> _enum;
 
-        private GroupFluent _fluent;
-        /// <summary>
-        /// Appends a <see cref="StringParam"/> to a <see cref="GroupParam"/> using <see cref="GroupFluent"/>
-        /// </summary>
-        /// <returns></returns>
-        public GroupFluent Append()
+
+        private List<object> _parentFluents;
+
+        internal TType Fluent<TType>()
         {
-            _fluent.Add(Build());
-            return _fluent;
+            return (TType)_parentFluents.First(i => i.GetType() == typeof(TType));
         }
 
         /// <summary>
@@ -40,9 +38,9 @@ namespace Thalus.Forma.Fluent
         /// <summary>
         /// Creates an instance of <see cref="StringFluent"/> initialized with passed parameters
         /// </summary>
-        public StringFluent(GroupFluent fluent)
+        public StringFluent(params object[] fluent)
         {
-            _fluent = fluent;
+            _parentFluents = fluent?.ToList();
             PresetValues();
         }
         /// <summary>
